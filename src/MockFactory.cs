@@ -1,0 +1,329 @@
+using System.Text.Json;
+using apim_graphql_demo.models;
+
+namespace ApimDemo.GraphQLResolver
+{
+    public sealed class MockFactory : IMockFactory
+    {
+        private static readonly Lazy<MockFactory> _instance = new Lazy<MockFactory>(() => new MockFactory());
+
+        private MockFactory()
+        {
+            Persons = new List<Person>();
+            ManagingUnits = new List<ManagingUnit>();
+        }
+
+        public static MockFactory Instance => _instance.Value;
+
+        public List<Person> Persons { get; private set; }
+        public List<ManagingUnit> ManagingUnits { get; private set; }
+
+        public void LoadMockData()
+        {
+            var personJson = GetFixedJson();
+
+            Persons = JsonSerializer.Deserialize<List<Person>>(personJson) ?? new List<Person>();
+
+            Dictionary<string, List<Person>> managingUnitMap = new Dictionary<string, List<Person>>();
+
+            var groups = Persons.Select((person, index) => new { person, index })
+                                 .GroupBy(x => x.index % 4)
+                                 .Select(g => g.Select(x => x.person).ToList())
+                                 .ToList();
+
+            managingUnitMap.Add("HR", groups.ElementAtOrDefault(0) ?? new List<Person>());
+            managingUnitMap.Add("IT", groups.ElementAtOrDefault(1) ?? new List<Person>());
+            managingUnitMap.Add("Finance", groups.ElementAtOrDefault(2) ?? new List<Person>());
+            managingUnitMap.Add("Marketing", groups.ElementAtOrDefault(3) ?? new List<Person>());
+
+            int id = 0;
+            foreach (var unit in managingUnitMap)
+            {
+                if (unit.Value.Count > 0)
+                {
+                    var manager = unit.Value.First();
+                    var members = unit.Value.Skip(1).ToList();
+
+                    ManagingUnits.Add(new ManagingUnit
+                    {
+                        Id = id++.ToString(),
+                        Name = unit.Key,
+                        Manager = manager,
+                        CostCenterCode = string.Concat(unit.Key, Random.Shared.Next(1000, 9999)),
+                        Workers = members
+                    });
+                }
+                else
+                {
+                    ManagingUnits.Add(new ManagingUnit
+                    {
+                        Id = id++.ToString(),
+                        Name = unit.Key,
+                        Manager = new Person(),
+                        CostCenterCode = string.Empty,
+                        Workers = new List<Person>()
+                    });
+                }
+            }
+
+            Console.WriteLine(@"Number of managing units: " + ManagingUnits.Count);
+        }
+
+        public Person GetPersonById(string id)
+        {
+            return Persons.FirstOrDefault(p => p.Id == id) ?? new Person();
+        }
+
+        public List<Person> GetPersonsByManagingUnit(string managingUnitId)
+        {
+            return ManagingUnits.FirstOrDefault(mu => mu.Id == managingUnitId)?.Workers ?? new List<Person>();
+        }
+
+        public List<ManagingUnit> GetAllManagingUnits()
+        {
+            return ManagingUnits;
+        }
+
+        public List<Person> GetAllPersons()
+        {
+            return Persons;
+        }
+
+        public ManagingUnit GetManagingUnitById(string id)
+        {
+            return ManagingUnits.FirstOrDefault(mu => mu.Id == id) ?? new ManagingUnit();
+        }
+
+        private string GetFixedJson()
+        {
+            return @"
+                [
+                    {
+                        ""Id"": ""1"",
+                        ""FirstName"": ""John"",
+                        ""LastName"": ""Doe"",
+                        ""Email"": ""john.doe@example.com"",
+                        ""JobTitle"": ""Software Engineer"",
+                        ""Salary"": 60000,
+                        ""Phone"": ""123-456-7890""
+                    },
+                    {
+                        ""Id"": ""2"",
+                        ""FirstName"": ""Jane"",
+                        ""LastName"": ""Smith"",
+                        ""Email"": ""jane.smith@example.com"",
+                        ""JobTitle"": ""Product Manager"",
+                        ""Salary"": 75000,
+                        ""Phone"": ""987-654-3210""
+                    },
+                    {
+                        ""Id"": ""3"",
+                        ""FirstName"": ""Alice"",
+                        ""LastName"": ""Johnson"",
+                        ""Email"": ""alice.johnson@example.com"",
+                        ""JobTitle"": ""UX Designer"",
+                        ""Salary"": 65000,
+                        ""Phone"": ""555-123-4567""
+                    },
+                    {
+                        ""Id"": ""4"",
+                        ""FirstName"": ""Bob"",
+                        ""LastName"": ""Brown"",
+                        ""Email"": ""bob.brown@example.com"",
+                        ""JobTitle"": ""Data Scientist"",
+                        ""Salary"": 85000,
+                        ""Phone"": ""555-987-6543""
+                    },
+                    {
+                        ""Id"": ""5"",
+                        ""FirstName"": ""Charlie"",
+                        ""LastName"": ""Davis"",
+                        ""Email"": ""charlie.davis@example.com"",
+                        ""JobTitle"": ""DevOps Engineer"",
+                        ""Salary"": 70000,
+                        ""Phone"": ""555-234-5678""
+                    },
+                    {
+                        ""Id"": ""6"",
+                        ""FirstName"": ""Diana"",
+                        ""LastName"": ""Evans"",
+                        ""Email"": ""diana.evans@example.com"",
+                        ""JobTitle"": ""QA Engineer"",
+                        ""Salary"": 62000,
+                        ""Phone"": ""555-345-6789""
+                    },
+                    {
+                        ""Id"": ""7"",
+                        ""FirstName"": ""Ethan"",
+                        ""LastName"": ""Garcia"",
+                        ""Email"": ""ethan.garcia@example.com"",
+                        ""JobTitle"": ""Cloud Architect"",
+                        ""Salary"": 95000,
+                        ""Phone"": ""555-456-7890""
+                    },
+                    {
+                        ""Id"": ""8"",
+                        ""FirstName"": ""Fiona"",
+                        ""LastName"": ""Harris"",
+                        ""Email"": ""fiona.harris@example.com"",
+                        ""JobTitle"": ""Business Analyst"",
+                        ""Salary"": 68000,
+                        ""Phone"": ""555-567-8901""
+                    },
+                    {
+                        ""Id"": ""9"",
+                        ""FirstName"": ""George"",
+                        ""LastName"": ""Iverson"",
+                        ""Email"": ""george.iverson@example.com"",
+                        ""JobTitle"": ""Network Engineer"",
+                        ""Salary"": 72000,
+                        ""Phone"": ""555-678-9012""
+                    },
+                    {
+                        ""Id"": ""10"",
+                        ""FirstName"": ""Hannah"",
+                        ""LastName"": ""Jackson"",
+                        ""Email"": ""hannah.jackson@example.com"",
+                        ""JobTitle"": ""Scrum Master"",
+                        ""Salary"": 77000,
+                        ""Phone"": ""555-789-0123""
+                    },
+                    {
+                        ""Id"": ""11"",
+                        ""FirstName"": ""Ian"",
+                        ""LastName"": ""King"",
+                        ""Email"": ""ian.king@example.com"",
+                        ""JobTitle"": ""Full Stack Developer"",
+                        ""Salary"": 80000,
+                        ""Phone"": ""555-890-1234""
+                    },
+                    {
+                        ""Id"": ""12"",
+                        ""FirstName"": ""Julia"",
+                        ""LastName"": ""Lewis"",
+                        ""Email"": ""julia.lewis@example.com"",
+                        ""JobTitle"": ""Technical Writer"",
+                        ""Salary"": 58000,
+                        ""Phone"": ""555-901-2345""
+                    },
+                    {
+                        ""Id"": ""13"",
+                        ""FirstName"": ""Kevin"",
+                        ""LastName"": ""Martinez"",
+                        ""Email"": ""kevin.martinez@example.com"",
+                        ""JobTitle"": ""Database Administrator"",
+                        ""Salary"": 74000,
+                        ""Phone"": ""555-012-3456""
+                    },
+                    {
+                        ""Id"": ""14"",
+                        ""FirstName"": ""Laura"",
+                        ""LastName"": ""Nelson"",
+                        ""Email"": ""laura.nelson@example.com"",
+                        ""JobTitle"": ""Frontend Developer"",
+                        ""Salary"": 67000,
+                        ""Phone"": ""555-123-4568""
+                    },
+                    {
+                        ""Id"": ""15"",
+                        ""FirstName"": ""Michael"",
+                        ""LastName"": ""O'Connor"",
+                        ""Email"": ""michael.oconnor@example.com"",
+                        ""JobTitle"": ""Backend Developer"",
+                        ""Salary"": 71000,
+                        ""Phone"": ""555-234-5679""
+                    },
+                    {
+                        ""Id"": ""16"",
+                        ""FirstName"": ""Nina"",
+                        ""LastName"": ""Perez"",
+                        ""Email"": ""nina.perez@example.com"",
+                        ""JobTitle"": ""IT Support Specialist"",
+                        ""Salary"": 55000,
+                        ""Phone"": ""555-345-6780""
+                    },
+                    {
+                        ""Id"": ""17"",
+                        ""FirstName"": ""Oscar"",
+                        ""LastName"": ""Quinn"",
+                        ""Email"": ""oscar.quinn@example.com"",
+                        ""JobTitle"": ""Security Analyst"",
+                        ""Salary"": 78000,
+                        ""Phone"": ""555-456-7891""
+                    },
+                    {
+                        ""Id"": ""18"",
+                        ""FirstName"": ""Paula"",
+                        ""LastName"": ""Roberts"",
+                        ""Email"": ""paula.roberts@example.com"",
+                        ""JobTitle"": ""Project Manager"",
+                        ""Salary"": 82000,
+                        ""Phone"": ""555-567-8902""
+                    },
+                    {
+                        ""Id"": ""19"",
+                        ""FirstName"": ""Quentin"",
+                        ""LastName"": ""Stewart"",
+                        ""Email"": ""quentin.stewart@example.com"",
+                        ""JobTitle"": ""AI Engineer"",
+                        ""Salary"": 98000,
+                        ""Phone"": ""555-678-9013""
+                    },
+                    {
+                        ""Id"": ""20"",
+                        ""FirstName"": ""Rachel"",
+                        ""LastName"": ""Taylor"",
+                        ""Email"": ""rachel.taylor@example.com"",
+                        ""JobTitle"": ""Marketing Specialist"",
+                        ""Salary"": 63000,
+                        ""Phone"": ""555-789-0124""
+                    },
+                    {
+                        ""Id"": ""21"",
+                        ""FirstName"": ""Steve"",
+                        ""LastName"": ""Upton"",
+                        ""Email"": ""steve.upton@example.com"",
+                        ""JobTitle"": ""System Administrator"",
+                        ""Salary"": 76000,
+                        ""Phone"": ""555-890-1235""
+                    },
+                    {
+                        ""Id"": ""22"",
+                        ""FirstName"": ""Tina"",
+                        ""LastName"": ""Vargas"",
+                        ""Email"": ""tina.vargas@example.com"",
+                        ""JobTitle"": ""Content Strategist"",
+                        ""Salary"": 59000,
+                        ""Phone"": ""555-901-2346""
+                    },
+                    {
+                        ""Id"": ""23"",
+                        ""FirstName"": ""Umar"",
+                        ""LastName"": ""Williams"",
+                        ""Email"": ""umar.williams@example.com"",
+                        ""JobTitle"": ""Mobile Developer"",
+                        ""Salary"": 72000,
+                        ""Phone"": ""555-012-3457""
+                    },
+                    {
+                        ""Id"": ""24"",
+                        ""FirstName"": ""Victoria"",
+                        ""LastName"": ""Xavier"",
+                        ""Email"": ""victoria.xavier@example.com"",
+                        ""JobTitle"": ""SEO Specialist"",
+                        ""Salary"": 61000,
+                        ""Phone"": ""555-123-4569""
+                    },
+                    {
+                        ""Id"": ""25"",
+                        ""FirstName"": ""William"",
+                        ""LastName"": ""Young"",
+                        ""Email"": ""william.young@example.com"",
+                        ""JobTitle"": ""Game Developer"",
+                        ""Salary"": 77000,
+                        ""Phone"": ""555-234-5670""
+                    }
+                ]";
+        }
+    }
+}

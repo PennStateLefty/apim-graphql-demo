@@ -1,0 +1,8 @@
+# Ignore VS Code settings
+.vscode/
+*.code-workspace
+
+# Ignore Azure Function C# files
+bin/
+obj/
+*.csproj.user

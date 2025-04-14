@@ -1,0 +1,51 @@
+[
+  {
+    "Name": "Engineering",
+    "Manager": { "Id": "1" },
+    "CostCenterCode": "ENG001",
+    "Workers": [
+      { "Id": "3" },
+      { "Id": "5" },
+      { "Id": "6" },
+      { "Id": "11" },
+      { "Id": "14" }
+    ]
+  },
+  {
+    "Name": "Product Management",
+    "Manager": { "Id": "2" },
+    "CostCenterCode": "PM001",
+    "Workers": [
+      { "Id": "8" },
+      { "Id": "18" },
+      { "Id": "10" },
+      { "Id": "20" },
+      { "Id": "22" }
+    ]
+  },
+  {
+    "Name": "Data Science",
+    "Manager": { "Id": "4" },
+    "CostCenterCode": "DS001",
+    "Workers": [
+      { "Id": "17" },
+      { "Id": "19" },
+      { "Id": "13" },
+      { "Id": "15" },
+      { "Id": "23" }
+    ]
+  },
+  {
+    "Name": "IT Support",
+    "Manager": { "Id": "16" },
+    "CostCenterCode": "IT001",
+    "Workers": [
+      { "Id": "9" },
+      { "Id": "21" },
+      { "Id": "7" },
+      { "Id": "12" },
+      { "Id": "24" },
+      { "Id": "25" }
+    ]
+  }
+]
