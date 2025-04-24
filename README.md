@@ -49,6 +49,7 @@ Follow the prompts to log in and select your Azure subscription.
 3. In the APIM blade, select **APIs** > **+ Add API** > **GraphQL**.
 4. Import the provided GraphQL schema from the `/src/schema` folder.
 5. Set up resolvers for your schema fields, pointing them to the Azure Function backend API deployed in the previous step.
+  1. Check the apim-graphql-policy-samples.xml file for examples on how to configure a resolver when dealing with a GET all style REST endpoint vs. one using a parameter in the URI path
 
 ### 4. Test Your GraphQL API
 

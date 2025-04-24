@@ -1,0 +1,15 @@
+<!--This policy example is for the getPersonById query type in the GraphQL schema. Note the context object needed to get the argument passed and send it to the backend API-->>
+<http-data-source>
+	<http-request>
+		<set-method>GET</set-method>
+		<set-url>@($"https://{BackendAPI-FQDN}/api/GetPersonById/{context.GraphQL.Arguments["id"]}")</set-url>
+	</http-request>
+</http-data-source>
+
+<!--This policy example simple maps a GET all style query to the backend API-->
+<http-data-source>
+	<http-request>
+		<set-method>GET</set-method>
+		<set-url>https://mockworkdayapi-fjf8hgezbxfxh6d0.eastus2-01.azurewebsites.net/api/GetAllPersons</set-url>
+	</http-request>
+</http-data-source>
