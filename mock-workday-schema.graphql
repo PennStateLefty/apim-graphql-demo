@@ -1,0 +1,36 @@
+schema {
+  query: Query
+}
+
+type Person {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  jobTitle: String!
+  salary: Float!
+  phone: String!
+}
+
+type PersonLimited {
+    id: ID!
+    firstName: String!
+    lastName: String!
+}
+
+type ManagingUnit {
+  id: ID!
+  name: String!
+  manager: Person!
+  costCenterCode: String!
+  workers: [Person!]!
+}
+
+type Query {
+  getPersonById(id: ID!): Person
+  getPersonLimitedById(id: ID!): PersonLimited
+  getAllPersons: [Person!]!
+  getAllManagingUnits: [ManagingUnit!]!
+  getPersonsByManagingUnit(managingUnitId: ID!): [Person!]!
+  getManagingUnitById(id: ID!): ManagingUnit
+}
